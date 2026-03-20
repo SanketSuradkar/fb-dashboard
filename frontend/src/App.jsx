@@ -55,7 +55,7 @@ function App() {
   // Get Pages
   const getPages = async () => {
     const res = await fetch(
-      `http://localhost:5000/pages?token=${token}`
+      `https://fb-dashboard-03na.onrender.com/pages?token=${token}`
     );
     const data = await res.json();
     setPages(data.data || []);
@@ -68,7 +68,7 @@ function App() {
       return;
     }
 
-    let url = `http://localhost:5000/insights?pageId=${selectedPage}&token=${pageToken}`;
+    let url = `https://fb-dashboard-03na.onrender.com/insights?pageId=${selectedPage}&token=${pageToken}`;
 
     if (since && until) {
       url += `&since=${since}&until=${until}`;
