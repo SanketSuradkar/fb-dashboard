@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 
 function App() {
@@ -21,8 +20,6 @@ function App() {
         xfbml: true,
         version: "v18.0",
       });
-
-      console.log("FB SDK Ready");
       setFbLoaded(true);
     };
 
@@ -64,19 +61,21 @@ function App() {
     setPages(data.data || []);
   };
 
-  // Get Insights (UPDATED WITH DATE FILTER)
+  // Get Insights
   const getInsights = async () => {
     if (!selectedPage || !pageToken) {
       alert("Please select a page first");
       return;
     }
 
-    const res = await fetch(
-      `http://localhost:5000/insights?pageId=${selectedPage}&token=${pageToken}&since=${since}&until=${until}`
-    );
+    let url = `http://localhost:5000/insights?pageId=${selectedPage}&token=${pageToken}`;
 
+    if (since && until) {
+      url += `&since=${since}&until=${until}`;
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
-    console.log("Insights:", data);
 
     setInsights(data.data || []);
   };
@@ -85,12 +84,10 @@ function App() {
     <div style={{ textAlign: "center" }}>
       <h1>Facebook Dashboard</h1>
 
-      {/* Login */}
       <button onClick={login} disabled={!fbLoaded}>
         {fbLoaded ? "Login with Facebook" : "Loading Facebook..."}
       </button>
 
-      {/* User */}
       {user && (
         <>
           <h2>{user.name}</h2>
@@ -100,10 +97,8 @@ function App() {
 
       <br />
 
-      {/* Load Pages */}
       <button onClick={getPages}>Load Pages</button>
 
-      {/* Dropdown */}
       <select
         onChange={(e) => {
           const selected = pages.find(p => p.id === e.target.value);
@@ -121,22 +116,23 @@ function App() {
         ))}
       </select>
 
-      {/* DATE FILTER (NEW) */}
       <div style={{ marginTop: "10px" }}>
         <input
           type="date"
+          value={since}
           onChange={(e) => setSince(e.target.value)}
         />
         <input
           type="date"
+          value={until}
           onChange={(e) => setUntil(e.target.value)}
         />
       </div>
 
-      {/* Get Insights */}
       <button onClick={getInsights}>Get Insights</button>
 
-      {/* Cards */}
+      {insights.length === 0 && <p>No data available</p>}
+
       <div
         style={{
           display: "flex",
@@ -146,21 +142,20 @@ function App() {
           flexWrap: "wrap",
         }}
       >
-        {Array.isArray(insights) &&
-          insights.map((item) => (
-            <div
-              key={item.name}
-              style={{
-                border: "1px solid gray",
-                padding: "10px",
-                width: "180px",
-                borderRadius: "10px",
-              }}
-            >
-              <h3>{item.name}</h3>
-              <p>{item.value}</p> {/* ✅ FIXED */}
-            </div>
-          ))}
+        {insights.map((item) => (
+          <div
+            key={item.name}
+            style={{
+              border: "1px solid gray",
+              padding: "10px",
+              width: "180px",
+              borderRadius: "10px",
+            }}
+          >
+            <h3>{item.name}</h3>
+            <p>{item.value}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
